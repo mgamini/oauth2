@@ -21,7 +21,13 @@ defmodule OAuth2.Mixfile do
   end
 
   def application do
-    [applications: [:httpoison]]
+    [
+      mod: { OAuth2, [] },
+      applications: [:httpoison],
+      registered: [
+        OAuth2.Manager
+      ]
+    ]
   end
 
   defp deps do

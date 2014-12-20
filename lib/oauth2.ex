@@ -2,57 +2,63 @@ defmodule OAuth2 do
   @moduledoc """
   OAuth2
   """
+  use Application
 
-  alias OAuth2.Error
-  alias OAuth2.Request
-  alias OAuth2.Strategy
-  alias OAuth2.AccessToken
+  alias OAuth2.Authorize
 
-  @doc """
-  The authorize endpoint URL of the OAuth2 provider
-  """
-  def authorize_url(strategy, params \\ %{}) do
-    struct(strategy, params: Map.merge(strategy.params, params))
-    |> Strategy.to_url(:authorize_url)
+  def start(_type, _args) do
+    OAuth2.Supervisor.start_link
   end
 
-  @doc """
-  The token endpoint URL of the OAuth2 provider
-  """
-  def token_url(strategy, params \\ %{}) do
-    struct(strategy, params: Map.merge(strategy.params, params))
-    |> Strategy.to_url(:token_url)
-  end
+  def authorize_user(code, strategy \\ :default, params \\ %{}) when is_atom(strategy) and is_binary(code), do:
+    Authorize.authorize_user(code, strategy, params)
 
-  @doc """
-  Initializes an AccessToken by making a request to the token endpoint.
 
-  Returns an `AccessToken` struct that can then be used to access the resource API.
+  # @doc """
+  # The authorize endpoint URL of the OAuth2 provider
+  # """
+  # def authorize_url(strategy, params \\ %{}) do
+  #   struct(strategy, params: Map.merge(strategy.params, params))
+  #   |> Strategy.to_url(:authorize_url)
+  # end
 
-  ## Arguments
+  # @doc """
+  # The token endpoint URL of the OAuth2 provider
+  # """
+  # def token_url(strategy, params \\ %{}) do
+  #   struct(strategy, params: Map.merge(strategy.params, params))
+  #   |> Strategy.to_url(:token_url)
+  # end
 
-  * `strategy` - a struct of the strategy in use.
-  * `params`   - a map of additional request parameters.
-  * `opts`     - a keyword list of opts used for the request and token.
-  """
-  def get_token(strategy, params \\ %{}, opts \\ [])
+  # @doc """
+  # Initializes an AccessToken by making a request to the token endpoint.
 
-  def get_token(%{token_method: :post} = strategy, params, opts) do
-    {headers, body} = Map.pop(params, :headers, [])
-    case Request.post(token_url(strategy), body, post_headers(headers), opts) do
-      {:ok, response}  -> {:ok, AccessToken.new(response.body, strategy, opts)}
-      {:error, reason} -> {:error, %Error{reason: reason}}
-    end
-  end
-  def get_token(strategy, params, opts) do
-    case Request.get(token_url(strategy, params), opts) do
-      {:ok, response}  -> {:ok, AccessToken.new(response.body, strategy, opts)}
-      {:error, reason} -> {:error, %Error{reason: reason}}
-    end
-  end
+  # Returns an `AccessToken` struct that can then be used to access the resource API.
 
-  def post_headers(headers) do
-    [{"Content-Type", "application/x-www-form-urlencoded"} | headers]
-  end
+  # ## Arguments
+
+  # * `strategy` - a struct of the strategy in use.
+  # * `params`   - a map of additional request parameters.
+  # * `opts`     - a keyword list of opts used for the request and token.
+  # """
+  # def get_token(strategy, params \\ %{}, opts \\ [])
+
+  # def get_token(%{token_method: :post} = strategy, params, opts) do
+  #   {headers, body} = Map.pop(params, :headers, [])
+  #   case Request.post(token_url(strategy), body, post_headers(headers), opts) do
+  #     {:ok, response}  -> {:ok, AccessToken.new(response.body, strategy, opts)}
+  #     {:error, reason} -> {:error, %Error{reason: reason}}
+  #   end
+  # end
+  # def get_token(strategy, params, opts) do
+  #   case Request.get(token_url(strategy, params), opts) do
+  #     {:ok, response}  -> {:ok, AccessToken.new(response.body, strategy, opts)}
+  #     {:error, reason} -> {:error, %Error{reason: reason}}
+  #   end
+  # end
+
+  # def post_headers(headers) do
+  #   [{"Content-Type", "application/x-www-form-urlencoded"} | headers]
+  # end
 end
 

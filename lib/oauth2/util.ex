@@ -18,4 +18,17 @@ defmodule OAuth2.Util do
         "application/json"
     end
   end
+
+  def atomize_keys(map) when is_map(map) do
+    Enum.into map, %{}, fn
+      {key, value} when is_binary(key) and is_map(value) ->
+        {String.to_atom(key), atomize_keys(value)}
+      {key, value} when is_binary(key) ->
+        {String.to_atom(key), value}
+      {key, value} when is_map(value) ->
+        {key, atomize_keys(value)}
+      pair ->
+        pair
+    end
+  end
 end
