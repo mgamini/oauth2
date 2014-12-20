@@ -17,11 +17,11 @@ defmodule OAuth2.Response do
     if !status_code in @code_valid || Dict.has_key?(body, :error) do
       {:error, body}
     else
-      %__MODULE__{
+      {:ok, %__MODULE__{
         status_code: status_code,
         headers: headers,
         body: body
-      }
+      }}
     end
   end
 
