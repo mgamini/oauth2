@@ -3,29 +3,79 @@ OAuth2
 
 > OAuth2 Library for Elixir
 
-## API
+### Usage
+So far, I only have one situation coded out: utilizing an access code with Google's OAuth2 (https://developers.google.com/accounts/docs/OAuth2)
 
-This is still a work in progress. But here's what I'm thinking so far:
+## Registration
+Start by registering an oauth strategy:
 
-#### Authorization Code Flow (AuthCode Strategy)
-
+# Simple example:
+* This is the same as the multiple strategies example below, it simply sets its name to :default*
 ```elixir
-alias OAuth2.Strategy.AuthCode
+params = %{
+  client_id: "someid12345",
+  client_secret: "somesecret12345",
+  redirect_uri: "http://whatever.com/oauth",
+  token_endpoint: "https://www.googleapis.com/oauth2/v3/token"
+}
+OAuth2.register(params)
+# > :ok
+```
 
-# Initialize the strategy with your client_id, client_secret, and site.
-strategy = AuthCode.new([
-  client_id: "client_id",
-  client_secret: "abc123",
-  site: "https://auth.example.com"
-])
+# Multiple strategies:
+```elixir
+params1 = %{
+  client_id: "someid12345",
+  client_secret: "somesecret12345",
+  redirect_uri: "http://whatever.com/oauth",
+  token_endpoint: "https://www.googleapis.com/oauth2/v3/token"
+}
+params2 = %{
+  client_id: "someid12345",
+  client_secret: "somesecret12345",
+  redirect_uri: "http://whatever.com/oauth",
+  token_endpoint: "https://someotherservice.com/oauth"
+}
+OAuth2.register(:google, params1)
+# > :ok
+OAuth2.register(:other, params2)
+# > :ok
+```
 
-# Generate the authorization URL and redirect the user to the provider.
-AuthCode.authorize_url(strategy, %{redirect_uri: "https://example.com/auth/callback"})
-# => "https://auth.example.com/oauth/authorize?client_id=client_id&redirect_uri=https%3A%2F%2Fexample.com%2Fauth%2Fcallback&response_type=code"
+# Utilizing a discovery service:
+```elixir
+params = %{
+  client_id: "someid12345",
+  client_secret: "somesecret12345",
+  redirect_uri: "http://whatever.com/oauth"
+}
+discovery_uri = "https://accounts.google.com/.well-known/openid-configuration"
 
-# Use the authorization code returned from the provider to obtain an access token.
-token = AuthCode.get_token!(strategy, "someauthcode", %{redirect_uri: "https://example.com/auth/callback"})
+OAuth2.register(:google, params, discovery_uri)
+# > :ok
+```
 
-# Use the access token to make a request for resources
-resource = OAuth2.AccessToken.get!(token, "/api/resource")
+## Authorizing Users
+```elixir
+OAuth2.authorize_user("access_code_asdfasdfasdfasdfasdf")
+# >  {:ok,
+# >   %OAuth2.Response{
+# >    body: %{access_token: "asdfasdfasdfasdfsadfasdfasdf",
+# >      expires_in: 3600,
+# >      id_token: "asdfsadfsadfsadfsadfsadfsadfsadfsadfsadfasdfasdfa",
+# >      token_type: "Bearer"},
+# >    headers: [{"Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"},
+# >     {"Pragma", "no-cache"}, {"Expires", "Fri, 01 Jan 1990 00:00:00 GMT"},
+# >     {"Date", "Mon, 05 Jan 2015 22:49:06 GMT"}, {"Vary", "Origin"},
+# >     {"Vary", "X-Origin"}, {"Content-Type", "application/json; charset=UTF-8"},
+# >     {"X-Content-Type-Options", "nosniff"}, {"X-Frame-Options", "SAMEORIGIN"},
+# >     {"X-XSS-Protection", "1; mode=block"}, {"Server", "GSE"},
+# >     {"Alternate-Protocol", "443:quic,p=0.02"}, {"Transfer-Encoding", "chunked"}],
+# >    status_code: 200
+# >    }
+# >  }
+```
+or
+```elixir
+OAuth2.authorize_user(:strategy_name, "codecodecode")
 ```

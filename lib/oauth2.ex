@@ -12,8 +12,8 @@ defmodule OAuth2 do
   end
 
   def register(params), do: Manager.register(params)
-  def register(name, params), do: Manager.register({name, params})
-  def register(name, params, discovery), do: Manager.register({name, params, discovery})
+  def register(name, params) when is_atom(name), do: Manager.register({name, params})
+  def register(name, params, discovery) when is_atom(name), do: Manager.register({name, params, discovery})
 
   def authorize_user(code, strategy \\ :default, params \\ %{}) when is_atom(strategy) and is_binary(code), do:
     Authorize.authorize_user(code, strategy, params)

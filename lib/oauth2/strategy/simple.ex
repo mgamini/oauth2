@@ -6,7 +6,7 @@ defmodule OAuth2.Strategy.Simple do
     client_secret: nil,
     site: "",
     authorization_endpoint: "/oauth/authorize",
-    token_endpoint: "/oauth/token",
+    token_endpoint: "",
     grant_type: "authorization_code",
     token_method: :post,
     params: %{},
@@ -29,7 +29,7 @@ defmodule OAuth2.Strategy.Simple do
   end
 
   defp headers(strategy), do:
-    [{"Content-Type", "application/x-www-form-urlencoded"} | strategy.headers]
+    [{"Content-Type", "application/x-www-form-urlencoded"} | Dict.to_list(strategy.headers)]
 
   defp token_url(strategy) do
     base = strategy.token_endpoint
