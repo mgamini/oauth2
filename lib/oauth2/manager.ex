@@ -30,7 +30,7 @@ defmodule OAuth2.Manager do
     case Strategy.Simple.new(params) do
       {:ok, strategy} ->
         {:reply, :ok, %{state | strategies: Dict.put(state.strategies, name, strategy)}}
-      error ->
+      _error ->
         {:reply, :error, state}
     end
   end
@@ -39,7 +39,7 @@ defmodule OAuth2.Manager do
     case Strategy.Verified.new(params, discovery) do
       {:ok, strategy} ->
         {:reply, :ok, %{state | strategies: Dict.put(state.strategies, name, strategy)}}
-      error ->
+      _error ->
         {:reply, :error, state}
     end
   end
@@ -48,7 +48,7 @@ defmodule OAuth2.Manager do
     try do
       {:reply, {:ok, state.strategies[name]}, state}
     rescue
-      error -> {:reply, {:error, :strategy_not_found}, state}
+      _error -> {:reply, {:error, :strategy_not_found}, state}
     end
   end
 

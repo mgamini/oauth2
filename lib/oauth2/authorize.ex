@@ -1,10 +1,8 @@
 defmodule OAuth2.Authorize do
   alias OAuth2.Manager
-  alias OAuth2.Strategy
 
-  def authorize_user(code) do
-
-  end
+  def authorize_user(code), do:
+    authorize_user(code, :default, %{})
 
   def authorize_user(code, strategy_atom, params) do
     case Manager.get_strategy(strategy_atom) do

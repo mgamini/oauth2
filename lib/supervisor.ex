@@ -1,6 +1,5 @@
 defmodule OAuth2.Supervisor do
   use Supervisor
-  alias TUAdmin.Config
 
   def start_link do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
